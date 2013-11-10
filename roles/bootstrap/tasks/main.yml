@@ -59,6 +59,7 @@
   with_items:
     - 80
     - 443
+    - ssh
 
 - name: Check status of ufw
   command: ufw status
