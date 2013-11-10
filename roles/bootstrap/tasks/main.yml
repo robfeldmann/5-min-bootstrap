@@ -1,0 +1,90 @@
+- name: Set the hostname in /etc/hostname
+  shell: echo "{{ server_hostname }}" > /etc/hostname
+  register: hostname
+
+- name: Set the hostname
+  command: hostname -F /etc/hostname
+  when: hostname.changed
+
+- name: Create /etc/hosts file
+  template: src=etc_hosts.j2 dest=/etc/hosts
+
+- name: Set the timezone
+  shell: echo "{{ server_timezone }}" > /etc/timezone
+  when: server_timezone is defined
+  register: timezone
+
+- name: Run dpkg-reconfigure in noninteractive state
+  command: dpkg-reconfigure -f noninteractive tzdata
+  when: timezone.changed
+
+- name: Update apt cache
+  apt: update_cache=yes
+
+- name: Upgrade all safe packages
+  apt: upgrade=safe
+
+- name: Install necessary packages
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - sudo
+    - unattended-upgrades
+    - fail2ban
+    - ufw
+    - logwatch
+
+- name: Create deployment user account
+  user: name={{ deploy_user_name }} password={{ deploy_password_hash }} state=present append=yes groups=sudo shell={{ deploy_shell }}
+  when: deploy_user_name is defined and deploy_password_hash is defined
+
+- name: Set up authorized_keys for the deploy user
+  authorized_key: user={{ deploy_user_name }} key="{{ item }}"
+  with_file:
+    - id_rsa.pub
+  when: deploy_user_name is defined
+
+- name: Copy sudoers configuration into place
+  template: src=etc_sudoers.j2 dest=/etc/sudoers
+  when: deploy_user_name is defined
+
+- name: Copy sshd_config into place
+  template: src=etc_ssh_sshd_config.j2 dest=/etc/ssh/sshd_config
+  notify: restart ssh
+  when: deploy_user_name is defined and deploy_password_hash is defined
+
+- name: Set firewall rules
+  command: ufw allow {{ item }}
+  register: ufw_result
+  changed_when: "ufw_result.stdout.startswith('Rule')"
+  with_items:
+    - 80
+    - 443
+
+- name: Check status of ufw
+  command: ufw status
+  register: ufw_status
+  changed_when: False  # never report as "changed"
+
+- name: Check config of ufw
+  command: cat /etc/ufw/ufw.conf
+  register: ufw_config
+  changed_when: False  # never report as "changed"
+
+- name: Disable logging (workaround for known bug in Debian 7)
+  command: ufw logging off
+  when: "ansible_lsb['codename'] == 'wheezy' and 'LOGLEVEL=off' not in ufw_config.stdout"
+
+- name: Enable ufw
+  command: ufw --force enable
+  when: "ufw_status.stdout.startswith('Status: inactive') or 'ENABLED=yes' not in ufw_config.stdout"
+  
+- name: Adjust APT update intervals
+  copy: src=etc_apt_apt.conf.d_10periodic dest=/etc/apt/apt.conf.d/10periodic group=root owner=root
+
+- name: Make sure unattended-upgrades only installs from security
+  copy: src=etc_apt_apt.conf.d_50unattended-upgrades dest=/etc/apt/apt.conf.d/50unattended-upgrades group=root owner=root
+
+- name: Make logwatch mail logwatch_email daily
+  template: src=etc_cron.daily_00logwatch.j2 dest=/etc/cron.daily/00logwatch group=root owner=root
+  when: logwatch_email is defined
+    

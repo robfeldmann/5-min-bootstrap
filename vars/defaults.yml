@@ -1,0 +1,17 @@
+---
+###############################################################################
+# DO NOT EDIT. Set your variables in `vars/user.yml` instead. This is a
+# reference of all the variables.
+###############################################################################
+
+## bootstrap
+#server_ip_address: TODO
+#server_ipv6_address: TODO
+#server_hostname: TODO #Example: plato
+#server_domain_name: TODO.com #Example: example.com
+#server_timezone: TODO/TODO #Example: America/New_York
+#deploy_user_name: TODO #Example: deploy
+## User password values can be generated with "openssl passwd -salt <salt> -1 <plaintext>"
+#deploy_password_hash: "TODO"
+#deploy_shell: TODO #Example: /bin/bash
+#logwatch_email: TODO@TODO.com

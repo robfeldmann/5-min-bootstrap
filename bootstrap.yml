@@ -1,0 +1,13 @@
+---
+# Inspiration: http://plusbryan.com/my-first-5-minutes-on-a-server-or-essential-security-for-linux-servers
+
+- hosts: newservers
+  user: root
+  sudo: True
+  gather_facts: True
+  vars_files:
+    - vars/defaults.yml
+    - vars/user.yml
+
+  roles:
+    - bootstrap
