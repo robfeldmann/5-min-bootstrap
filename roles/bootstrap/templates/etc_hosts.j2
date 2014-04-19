@@ -1,12 +1,13 @@
 127.0.0.1       localhost
-{% if server_ipv6_address is defined %}
+{% if server_ip_address is defined %}
 {{ server_ip_address }}		{{ server_hostname }}.{{ server_domain_name }}		{{ server_hostname }}
 {% endif %}
+
 {% if server_ipv6_address is defined %}
 {{ server_ipv6_address }}		{{ server_hostname }}.{{ server_domain_name }}		{{ server_hostname }}
-{% endif %}
 
 # The following lines are desirable for IPv6 capable hosts
 ::1     localhost ip6-localhost ip6-loopback
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
+{% endif %}
