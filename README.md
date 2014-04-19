@@ -31,7 +31,7 @@ Read [Install sshpass Using Homebrew](http://lalyos.github.io/blog/2013/09/30/in
 
 ### Generate an SSH Key
 
-On Mac/Linus run the command:
+On Mac/Linux run the command:
 
     ssh-keygen
 
