@@ -8,6 +8,7 @@ Bootstrap is an [Ansible](http://ansibleworks.com) playbook that you can use to 
 
 * You're running this on a fresh VPS.
 * [Debian 7](http://www.debian.org/News/2013/20130504) or an equivalent Linux distribution. (You can use whatever distro you want, but deviating from Debian will require more tweaks to the playbooks. See Ansible's different [packaging](http://www.ansibleworks.com/docs/modules.html#packaging) modules.)
+* I can confirm that is also works as-is for [Ubuntu 14.04 x64](http://releases.ubuntu.com/14.04/).
 
 ## Preparations
 
@@ -38,6 +39,10 @@ On Mac/Linux run the command:
 Follow the onscreen instructions to generate your SSH key pairs on your desktop computer. By default, the ssh-keygen utility will save your private key to '~/.ssh/id_rsa' and the public key to '~/.ssh/id_rsa.pub'. If you don't want to use a passphrase simply press 'Enter' when prompted.
 
 Copy the entire contents of the public key file (~/.ssh/id_rsa.pub) and paste it in /roles/bootstrap/files/id_rsa.pub, replacing the TODO line. Even if you saved your key to a different name than id-rsa, you do not need to change this filename.
+
+Don't forget to add the newly created key or you will experience a `Permission denied (publickey)` error later on. If you entered a passphrase in the previous step you will need to enter that when prompted also.
+
+    ssh-add ~/.ssh/id_rsa
 
 ### Configure Ansible Variables
 
